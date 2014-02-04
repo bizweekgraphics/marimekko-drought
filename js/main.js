@@ -10,8 +10,9 @@ var width = 630,
     i = 0,
     data;
 
-d3.json("data/data.json", function(error, jsonData) {
+d3.json("data/data-real.json", function(error, jsonData) {
   data = jsonData;
+  console.log(jsonData);
   svg.datum({values: nest.entries(data[i])})
     .transition()
     .duration(1000)
@@ -19,8 +20,8 @@ d3.json("data/data.json", function(error, jsonData) {
 });
 
 var nest = d3.nest()
-    .key(function(d) { return d.segment; })
-    .key(function(d) { return d.market; });
+    .key(function(d) { return d.market; })
+    .key(function(d) { return d.segment; });
 
 var treemap = d3.layout.treemap()
     .mode("slice-dice")
