@@ -1,0 +1,22 @@
+[
+[
+{"market": "Auburn, AL", "segment": "Almond lovers", "value": 3840},
+{"market": "Auburn, AL", "segment": "Delicious-n-new", "value": 400},
+{"market": "Birmingham, AL", "segment": "Almond lovers", "value": 1600},
+{"market": "Birmingham, AL", "segment": "Delicious-n-new", "value": 400},
+{"market": "Gainesville, FL", "segment": "Almond lovers", "value": 640},
+{"market": "Gainesville, FL", "segment": "Delicious-n-new", "value": 400},
+{"market": "Durham, NC", "segment": "Almond lovers", "value": 320},
+{"market": "Durham, NC", "segment": "Delicious-n-new", "value": 400}
+],
+[
+{"market": "Auburn, AL", "segment": "Almond lovers", "value": 400},
+{"market": "Auburn, AL", "segment": "Delicious-n-new", "value": 3840},
+{"market": "Birmingham, AL", "segment": "Almond lovers", "value": 400},
+{"market": "Birmingham, AL", "segment": "Delicious-n-new", "value": 1600},
+{"market": "Gainesville, FL", "segment": "Almond lovers", "value": 400},
+{"market": "Gainesville, FL", "segment": "Delicious-n-new", "value": 640},
+{"market": "Durham, NC", "segment": "Almond lovers", "value": 400},
+{"market": "Durham, NC", "segment": "Delicious-n-new", "value": 320}
+]
+]
