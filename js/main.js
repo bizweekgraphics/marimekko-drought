@@ -56,7 +56,15 @@ function chart(selection) {
     d3.transition(cell.exit()).remove();
 
     cellEnter.filter(function(d) { return d.depth > 2; }).append("rect")
-        .style("fill", function(d) { return d.children ? null : color(d.segment); });
+        .style("fill", function(d) { 
+          if(d.children) { return null; } else { 
+            if(d.segment == "Unused capacity") {
+              return "#eee";
+            } else if(d.segment == "Water storage") {
+              return "#99f";
+            }
+          }
+        });
     cellUpdate.select("rect")
         .attr("width", function(d) { return d.dx; })
         .attr("height", function(d) { return d.dy; })
@@ -75,6 +83,7 @@ function title(d) {
 function increment() {
   svg.datum({values: nest.entries(data[i])})
       .transition()
+      .ease("linear")
       .duration(1000)
       .call(chart);
 }
