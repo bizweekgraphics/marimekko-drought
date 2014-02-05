@@ -3,13 +3,17 @@
 
 # TEAM
 
-    <name> -- <role> -- <twitter>
+    Karen Weise -- writer -- @KYWeise
+    Toph Tucker -- graphics -- @tophtucker
 
 # THANKS
 
-    <name>
+    Mike Bostock, naturally, upon whose Marimekko chart this is heavvilllyyy based.
+    http://bl.ocks.org/mbostock/1005090
 
 # TECHNOLOGY COLOPHON
 
+    d3.js, all hail
     HTML5, CSS3
     Normalize.css, jQuery, Modernizr
+    A little bit of PureCSS.io
