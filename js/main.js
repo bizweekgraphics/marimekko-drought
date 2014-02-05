@@ -13,12 +13,15 @@ var x = d3.scale.linear()
     .range([0, width - 3 * margin]);
 
 var y = d3.scale.linear()
-    .range([0, height - 2 * margin]);
+    .range([0, height - 2 * margin])
+    .clamp(true);
 
 var colorKey = {
     "Water level": "#99f",
     "Unused capacity": "#eee"
     };
+
+var dateFormatter = d3.time.format("%B %Y");
 
 var n = d3.format(",d"),
     p = d3.format("%");
@@ -38,7 +41,7 @@ d3.json("data/reservoirs.json", function(error, reservoirsJson) {
       levels.forEach(function(levelEntry) {
         var dateLevels = new Object();
         dateLevels.date = levelEntry.date;
-        levelEntry.month = levelEntry.month;
+        dateLevels.month = levelEntry.month;
         dateLevels.values = new Array();
         
         // push two entries for each reservoir
@@ -70,7 +73,7 @@ d3.json("data/reservoirs.json", function(error, reservoirsJson) {
         update(marimekko[i].values);
         i++;
         if(i>=marimekko.length) i=0;
-      },100);
+      },1000);
 
       
       //JSON.stringify(marimekko[40909]);
@@ -82,6 +85,9 @@ d3.json("data/reservoirs.json", function(error, reservoirsJson) {
 //d3.json("marimekko.json",chart);
 
 function chart(error, data) {
+  
+  d3.select("#date-label").text(dateFormatter(getDateFromExcel(marimekko[i].date)));
+  
   var offset = 0;
 
   // Nest values by segment. We assume each segment+market is unique.
@@ -165,6 +171,9 @@ function chart(error, data) {
 }
 
 function update(data) {
+
+  d3.select("#date-label").text(dateFormatter(getDateFromExcel(marimekko[i].date)));
+
   var offset = 0;
 
   // Nest values by segment. We assume each segment+market is unique.
@@ -185,7 +194,7 @@ function update(data) {
   var markets = svg.selectAll(".market rect")
       .data(data)
       .transition()
-      .duration(100)
+      .duration(1000)
       .ease("linear")
       .attr("y", function(d) { return y(d.offset / d.parent.sum); })
       .attr("height", function(d) { return y(d.value / d.parent.sum); })

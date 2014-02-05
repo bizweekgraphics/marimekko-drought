@@ -160,6 +160,19 @@ h2 a {
   background-repeat: no-repeat;
 }
 
+/* BLEH */
+
+h3 {
+  font-family: BWHaasHead;
+  margin:0;
+}
+
+h4 {
+  font-family: BWHaasRegular;  
+  margin:-1.2em 0 0 0;
+  text-align:right;
+}
+
 /* SVG */
 
 #svg-canvas {
