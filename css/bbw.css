@@ -175,7 +175,7 @@ path.arrow, polyline.arrow {
 }
 
 rect {
-  stroke: none;
+  stroke: #ccc;
 }
 
 .axis path, .axis line {
