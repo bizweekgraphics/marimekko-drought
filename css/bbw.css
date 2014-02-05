@@ -165,12 +165,16 @@ h2 a {
 h3 {
   font-family: BWHaasHead;
   margin:0;
+  width:80%;
+  float:left;
 }
 
 h4 {
   font-family: BWHaasRegular;  
-  margin:-1.2em 0 0 0;
+  margin:0;
   text-align:right;
+  float:right;
+  width:20%;
 }
 
 /* SVG */
