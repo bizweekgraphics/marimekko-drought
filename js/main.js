@@ -1,6 +1,6 @@
 var width = 630,
     height = 400,
-    margin = 20;
+    margin = 22;
 
 var marimekko = new Array();
 var reservoirs,
@@ -181,7 +181,15 @@ function chart(error, data) {
       .attr("x", -8)
       .attr("text-anchor", "end")
       .attr("dy", ".35em")
-      .text(p);
+      .text(function(d) { 
+        if(d==1) {
+          return "Full";
+        } else if(d==0) {
+          return "Empty";
+        } else {
+          return "";
+        }
+      });
 
   // Add a group for each segment.
   var segments = svg.selectAll(".segment")
