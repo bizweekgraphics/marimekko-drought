@@ -1,34 +1,19 @@
-// based on Jason Davies' Marimekko chart http://www.jasondavies.com/mekko/
-// based in turn on Mike Bostock's http://bl.ocks.org/1005090
-
 var width = 630,
-    height = 450,
-    margin = 30,
-    color = d3.scale.category10(),
-    n = d3.format(",d"),
-    p = d3.format("%"),
-    i = 0,
-    data;
+    height = 500,
+    margin = 20;
 
-d3.json("data/data-real.json", function(error, jsonData) {
-  data = jsonData;
-  console.log(jsonData);
-  svg.datum({values: nest.entries(data[i])})
-    .transition()
-    .duration(1000)
-    .call(chart);
-});
+var marimekko = new Object();
 
-var nest = d3.nest()
-    .key(function(d) { return d.market; })
-    .key(function(d) { return d.segment; });
+var x = d3.scale.linear()
+    .range([0, width - 3 * margin]);
 
-var treemap = d3.layout.treemap()
-    .mode("slice-dice")
-    //.padding(function(d) { return d.depth > 1 ? 2 : 0; })
-    .size([width - 3 * margin, height - 2 * margin])
-    .children(function(d) { return d.values; })
-    .sort(null);
+var y = d3.scale.linear()
+    .range([0, height - 2 * margin]);
+
+var z = d3.scale.category10();
+
+var n = d3.format(",d"),
+    p = d3.format("%");
 
 var svg = d3.select("#svg-canvas")
     .attr("width", width)
@@ -36,60 +21,111 @@ var svg = d3.select("#svg-canvas")
   .append("g")
     .attr("transform", "translate(" + 2 * margin + "," + margin + ")");
 
-svg.append("g")
-    .attr("class", "x axis")
-    .attr("transform", "translate(0," + treemap.size()[1] + ")")
-    .call(d3.svg.axis().scale(d3.scale.linear().range([0, treemap.size()[0]])).tickFormat(d3.format("%")));
-
-svg.append("g")
-    .attr("class", "y axis")
-    .call(d3.svg.axis().scale(d3.scale.linear().range([treemap.size()[1], 0])).tickFormat(d3.format("%")).orient("left"));
-
-function chart(selection) {
-  selection.each(function() {
-    var cell = d3.select(this).selectAll("g.cell")
-        .data(treemap.nodes);
-    var cellEnter = cell.enter().append("g")
-        .attr("class", "cell");
-    var cellUpdate = d3.transition(cell)
-        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-    d3.transition(cell.exit()).remove();
-
-    cellEnter.filter(function(d) { return d.depth > 2; }).append("rect")
-        .style("fill", function(d) { 
-          if(d.children) { return null; } else { 
-            if(d.segment == "Unused capacity") {
-              return "#eee";
-            } else if(d.segment == "Water storage") {
-              return "#99f";
-            }
-          }
+d3.json("data/reservoirs.json", function(error, reservoirs) {
+  d3.json("data/averages.json", function(error, averages) {
+    d3.json("data/levels.json", function(error, levels) {
+      levels.forEach(function(levelEntry) {
+        var dateLevels = new Array();
+        
+        // push two entries for each reservoir
+        reservoirs.forEach(function(reservoirEntry) {
+                    
+          // push entry for water level (blue)
+          dateLevels.push({
+            "market": reservoirEntry.name,
+            "segment": "Water level",
+            "value": levelEntry[reservoirEntry.id]
+          });
+          
+          // push entry for unused capacity (gray)
+          dateLevels.push({
+            "market": reservoirEntry.name,
+            "segment": "Unused capacity",
+            "value": reservoirEntry.capacity-levelEntry[reservoirEntry.id]
+          });
+          
         });
-    cellUpdate.select("rect")
-        .attr("width", function(d) { return d.dx; })
-        .attr("height", function(d) { return d.dy; })
-
-    cellEnter.append("title")
-        .text(function(d) { return d.children ? null : title(d); });
-    
-    i++;
+        marimekko[levelEntry.date] = dateLevels;
+      });
+      
+      // more stuff
+      console.log(marimekko[40909]);
+      
+    });    
   });
-}
+});
 
-function title(d) {
-  return d.segment + ": " + d.parent.key + ": " + n(d.value);
-}
+d3.json("marimekko.json", function(error, data) {
+  var offset = 0;
 
-function increment() {
-  svg.datum({values: nest.entries(data[i])})
-      .transition()
-      .ease("linear")
-      .duration(1000)
-      .call(chart);
-}
+  // Nest values by segment. We assume each segment+market is unique.
+  var segments = d3.nest()
+      .key(function(d) { return d.segment; })
+      .entries(data);
 
-d3.select("body").on("click", function() {
-  increment();
+  // Compute the total sum, the per-segment sum, and the per-market offset.
+  // You can use reduce rather than reduceRight to reverse the ordering.
+  // We also record a reference to the parent segment for each market.
+  var sum = segments.reduce(function(v, p) {
+    return (p.offset = v) + (p.sum = p.values.reduceRight(function(v, d) {
+      d.parent = p;
+      return (d.offset = v) + d.value;
+    }, 0));
+  }, 0);
+
+  // Add x-axis ticks.
+  var xtick = svg.selectAll(".x")
+      .data(x.ticks(10))
+    .enter().append("g")
+      .attr("class", "x")
+      .attr("transform", function(d) { return "translate(" + x(d) + "," + y(1) + ")"; });
+
+  xtick.append("line")
+      .attr("y2", 6)
+      .style("stroke", "#000");
+
+  xtick.append("text")
+      .attr("y", 8)
+      .attr("text-anchor", "middle")
+      .attr("dy", ".71em")
+      .text(p);
+
+  // Add y-axis ticks.
+  var ytick = svg.selectAll(".y")
+      .data(y.ticks(10))
+    .enter().append("g")
+      .attr("class", "y")
+      .attr("transform", function(d) { return "translate(0," + y(1 - d) + ")"; });
+
+  ytick.append("line")
+      .attr("x1", -6)
+      .style("stroke", "#000");
+
+  ytick.append("text")
+      .attr("x", -8)
+      .attr("text-anchor", "end")
+      .attr("dy", ".35em")
+      .text(p);
+
+  // Add a group for each segment.
+  var segments = svg.selectAll(".segment")
+      .data(segments)
+    .enter().append("g")
+      .attr("class", "segment")
+      .attr("xlink:title", function(d) { return d.key; })
+      .attr("transform", function(d) { return "translate(" + x(d.offset / sum) + ")"; });
+
+  // Add a rect for each market.
+  var markets = segments.selectAll(".market")
+      .data(function(d) { return d.values; })
+    .enter().append("a")
+      .attr("class", "market")
+      .attr("xlink:title", function(d) { return d.market + " " + d.parent.key + ": " + n(d.value); })
+    .append("rect")
+      .attr("y", function(d) { return y(d.offset / d.parent.sum); })
+      .attr("height", function(d) { return y(d.value / d.parent.sum); })
+      .attr("width", function(d) { return x(d.parent.sum / sum); })
+      .style("fill", function(d) { return z(d.market); });
 });
 
 //////////////////////////////////////////////////////////////////////////////////////////

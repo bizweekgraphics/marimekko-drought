@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<!-- saved from url=(0040)http://bl.ocks.org/mbostock/raw/1005090/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
+<title>Marimekko Chart</title>
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+rect {
+  stroke: #000;
+}
+
+svg {
+  shape-rendering: crispEdges;
+}
+
+</style>
+<link type="text/css" rel="stylesheet" href="chrome-extension://cpngackimfmofbokmjmljamhdncknpmg/style.css"><script type="text/javascript" charset="utf-8" src="chrome-extension://cpngackimfmofbokmjmljamhdncknpmg/js/page_context.js"></script></head><body screen_capture_injected="true" class=" hasGoogleVoiceExt">
+<script src="index_files/d3.v3.min.js"></script>
+<script>
+
+var width = 960,
+    height = 500,
+    margin = 20;
+
+var x = d3.scale.linear()
+    .range([0, width - 3 * margin]);
+
+var y = d3.scale.linear()
+    .range([0, height - 2 * margin]);
+
+var z = d3.scale.category10();
+
+var n = d3.format(",d"),
+    p = d3.format("%");
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+    .attr("transform", "translate(" + 2 * margin + "," + margin + ")");
+
+d3.json("marimekko.json", function(error, data) {
+  var offset = 0;
+  
+  console.log("Date:");
+  console.log(data);
+  
+  // Nest values by segment. We assume each segment+market is unique.
+  var segments = d3.nest()
+      .key(function(d) { return d.segment; })
+      .entries(data);
+  
+  console.log("Segments:");  
+  console.log(segments);
+  
+  // Compute the total sum, the per-segment sum, and the per-market offset.
+  // You can use reduce rather than reduceRight to reverse the ordering.
+  // We also record a reference to the parent segment for each market.
+  var sum = segments.reduce(function(v, p) {
+    return (p.offset = v) + (p.sum = p.values.reduceRight(function(v, d) {
+      d.parent = p;
+      return (d.offset = v) + d.value;
+    }, 0));
+  }, 0);
+
+  // Add x-axis ticks.
+  var xtick = svg.selectAll(".x")
+      .data(x.ticks(10))
+    .enter().append("g")
+      .attr("class", "x")
+      .attr("transform", function(d) { return "translate(" + x(d) + "," + y(1) + ")"; });
+
+  xtick.append("line")
+      .attr("y2", 6)
+      .style("stroke", "#000");
+
+  xtick.append("text")
+      .attr("y", 8)
+      .attr("text-anchor", "middle")
+      .attr("dy", ".71em")
+      .text(p);
+
+  // Add y-axis ticks.
+  var ytick = svg.selectAll(".y")
+      .data(y.ticks(10))
+    .enter().append("g")
+      .attr("class", "y")
+      .attr("transform", function(d) { return "translate(0," + y(1 - d) + ")"; });
+
+  ytick.append("line")
+      .attr("x1", -6)
+      .style("stroke", "#000");
+
+  ytick.append("text")
+      .attr("x", -8)
+      .attr("text-anchor", "end")
+      .attr("dy", ".35em")
+      .text(p);
+
+  // Add a group for each segment.
+  var segments = svg.selectAll(".segment")
+      .data(segments)
+    .enter().append("g")
+      .attr("class", "segment")
+      .attr("xlink:title", function(d) { return d.key; })
+      .attr("transform", function(d) { return "translate(" + x(d.offset / sum) + ")"; });
+
+  // Add a rect for each market.
+  var markets = segments.selectAll(".market")
+      .data(function(d) { return d.values; })
+    .enter().append("a")
+      .attr("class", "market")
+      .attr("xlink:title", function(d) { return d.market + " " + d.parent.key + ": " + n(d.value); })
+    .append("rect")
+      .attr("y", function(d) { return y(d.offset / d.parent.sum); })
+      .attr("height", function(d) { return y(d.value / d.parent.sum); })
+      .attr("width", function(d) { return x(d.parent.sum / sum); })
+      .style("fill", function(d) { return z(d.market); });
+});
+
+</script><svg width="960" height="500"><g transform="translate(40,20)"><g class="x" transform="translate(0,460)"><line y2="6" style="stroke: #000000;"></line><text y="8" text-anchor="middle" dy=".71em">0%</text></g><g class="x" transform="translate(90,460)"><line y2="6" style="stroke: #000000;"></line><text y="8" text-anchor="middle" dy=".71em">10%</text></g><g class="x" transform="translate(180,460)"><line y2="6" style="stroke: #000000;"></line><text y="8" text-anchor="middle" dy=".71em">20%</text></g><g class="x" transform="translate(270,460)"><line y2="6" style="stroke: #000000;"></line><text y="8" text-anchor="middle" dy=".71em">30%</text></g><g class="x" transform="translate(360,460)"><line y2="6" style="stroke: #000000;"></line><text y="8" text-anchor="middle" dy=".71em">40%</text></g><g class="x" transform="translate(450,460)"><line y2="6" style="stroke: #000000;"></line><text y="8" text-anchor="middle" dy=".71em">50%</text></g><g class="x" transform="translate(540,460)"><line y2="6" style="stroke: #000000;"></line><text y="8" text-anchor="middle" dy=".71em">60%</text></g><g class="x" transform="translate(630,460)"><line y2="6" style="stroke: #000000;"></line><text y="8" text-anchor="middle" dy=".71em">70%</text></g><g class="x" transform="translate(720,460)"><line y2="6" style="stroke: #000000;"></line><text y="8" text-anchor="middle" dy=".71em">80%</text></g><g class="x" transform="translate(810,460)"><line y2="6" style="stroke: #000000;"></line><text y="8" text-anchor="middle" dy=".71em">90%</text></g><g class="x" transform="translate(900,460)"><line y2="6" style="stroke: #000000;"></line><text y="8" text-anchor="middle" dy=".71em">100%</text></g><g class="y" transform="translate(0,460)"><line x1="-6" style="stroke: #000000;"></line><text x="-8" text-anchor="end" dy=".35em">0%</text></g><g class="y" transform="translate(0,414)"><line x1="-6" style="stroke: #000000;"></line><text x="-8" text-anchor="end" dy=".35em">10%</text></g><g class="y" transform="translate(0,368)"><line x1="-6" style="stroke: #000000;"></line><text x="-8" text-anchor="end" dy=".35em">20%</text></g><g class="y" transform="translate(0,322)"><line x1="-6" style="stroke: #000000;"></line><text x="-8" text-anchor="end" dy=".35em">30%</text></g><g class="y" transform="translate(0,276)"><line x1="-6" style="stroke: #000000;"></line><text x="-8" text-anchor="end" dy=".35em">40%</text></g><g class="y" transform="translate(0,230)"><line x1="-6" style="stroke: #000000;"></line><text x="-8" text-anchor="end" dy=".35em">50%</text></g><g class="y" transform="translate(0,184)"><line x1="-6" style="stroke: #000000;"></line><text x="-8" text-anchor="end" dy=".35em">60%</text></g><g class="y" transform="translate(0,138.00000000000003)"><line x1="-6" style="stroke: #000000;"></line><text x="-8" text-anchor="end" dy=".35em">70%</text></g><g class="y" transform="translate(0,91.99999999999999)"><line x1="-6" style="stroke: #000000;"></line><text x="-8" text-anchor="end" dy=".35em">80%</text></g><g class="y" transform="translate(0,45.99999999999999)"><line x1="-6" style="stroke: #000000;"></line><text x="-8" text-anchor="end" dy=".35em">90%</text></g><g class="y" transform="translate(0,0)"><line x1="-6" style="stroke: #000000;"></line><text x="-8" text-anchor="end" dy=".35em">100%</text></g><g class="segment" title="Almond lovers" transform="translate(0)"><a class="market" title="Auburn, AL Almond lovers: 3,840"><rect y="184" height="276" width="360" style="fill: #1f77b4;"></rect></a><a class="market" title="Birmingham, AL Almond lovers: 1,600"><rect y="69" height="115" width="360" style="fill: #ff7f0e;"></rect></a><a class="market" title="Gainesville, FL Almond lovers: 640"><rect y="23" height="46" width="360" style="fill: #2ca02c;"></rect></a><a class="market" title="Durham, NC Almond lovers: 320"><rect y="0" height="23" width="360" style="fill: #d62728;"></rect></a></g><g class="segment" title="Berry buyers" transform="translate(360)"><a class="market" title="Auburn, AL Berry buyers: 1,920"><rect y="276" height="184" width="270" style="fill: #1f77b4;"></rect></a><a class="market" title="Birmingham, AL Berry buyers: 1,440"><rect y="138" height="138" width="270" style="fill: #ff7f0e;"></rect></a><a class="market" title="Gainesville, FL Berry buyers: 960"><rect y="46" height="92" width="270" style="fill: #2ca02c;"></rect></a><a class="market" title="Durham, NC Berry buyers: 480"><rect y="0" height="46" width="270" style="fill: #d62728;"></rect></a></g><g class="segment" title="Carrots-n-more" transform="translate(630)"><a class="market" title="Auburn, AL Carrots-n-more: 960"><rect y="322" height="138" width="180" style="fill: #1f77b4;"></rect></a><a class="market" title="Birmingham, AL Carrots-n-more: 960"><rect y="184" height="138" width="180" style="fill: #ff7f0e;"></rect></a><a class="market" title="Gainesville, FL Carrots-n-more: 640"><rect y="92" height="92" width="180" style="fill: #2ca02c;"></rect></a><a class="market" title="Durham, NC Carrots-n-more: 640"><rect y="0" height="92" width="180" style="fill: #d62728;"></rect></a></g><g class="segment" title="Delicious-n-new" transform="translate(810)"><a class="market" title="Auburn, AL Delicious-n-new: 400"><rect y="345" height="115" width="90" style="fill: #1f77b4;"></rect></a><a class="market" title="Birmingham, AL Delicious-n-new: 400"><rect y="230" height="115" width="90" style="fill: #ff7f0e;"></rect></a><a class="market" title="Gainesville, FL Delicious-n-new: 400"><rect y="115" height="115" width="90" style="fill: #2ca02c;"></rect></a><a class="market" title="Durham, NC Delicious-n-new: 400"><rect y="0" height="115" width="90" style="fill: #d62728;"></rect></a></g></g></svg>
+</body></html>
