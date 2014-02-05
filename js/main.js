@@ -161,11 +161,11 @@ function chart(error, data) {
   
   var avgLines = segments
     .append("line")
-    .attr("class",".avgLines")
+    .attr("class","avgLines")
     .attr("x1",0)
     .attr("x2",function(d) { return x(d.sum / sum); })
-    .attr("y1",function(d) { return y(1-averages[d.key][1]); })
-    .attr("y2",function(d) { return y(1-averages[d.key][1]); })
+    .attr("y1",function(d) { return y(1-averages[d.key][marimekko[i].month]); })
+    .attr("y2",function(d) { return y(1-averages[d.key][marimekko[i].month]); })
     .attr("stroke","#3333ff");
     
 }
@@ -200,6 +200,14 @@ function update(data) {
       .attr("height", function(d) { return y(d.value / d.parent.sum); })
       .attr("width", function(d) { return x(d.parent.sum / sum); })
       .style("fill", function(d) { return colorKey[d.market]; });
+      
+  var avgLines = d3.selectAll(".avgLines")
+    .transition()
+    .duration(1000)
+    .ease("linear")
+    .attr("y1",function(d) { console.log(i); return y(1-averages[d.key][marimekko[i].month]); })
+    .attr("y2",function(d) { return y(1-averages[d.key][marimekko[i].month]); });
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
