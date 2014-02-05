@@ -3,6 +3,9 @@ var width = 630,
     margin = 20;
 
 var marimekko = new Object();
+var reservoirs,
+    averages,
+    levels;
 
 var x = d3.scale.linear()
     .range([0, width - 3 * margin]);
@@ -10,7 +13,10 @@ var x = d3.scale.linear()
 var y = d3.scale.linear()
     .range([0, height - 2 * margin]);
 
-var z = d3.scale.category10();
+var colorKey = {
+    "Water level": "#99f",
+    "Unused capacity": "#eee"
+    };
 
 var n = d3.format(",d"),
     p = d3.format("%");
@@ -21,9 +27,12 @@ var svg = d3.select("#svg-canvas")
   .append("g")
     .attr("transform", "translate(" + 2 * margin + "," + margin + ")");
 
-d3.json("data/reservoirs.json", function(error, reservoirs) {
-  d3.json("data/averages.json", function(error, averages) {
-    d3.json("data/levels.json", function(error, levels) {
+d3.json("data/reservoirs.json", function(error, reservoirsJson) {
+  reservoirs = reservoirsJson;
+  d3.json("data/averages.json", function(error, averagesJson) {
+    averages = averagesJson;
+    d3.json("data/levels.json", function(error, levelsJson) {
+      levels = levelsJson;
       levels.forEach(function(levelEntry) {
         var dateLevels = new Array();
         
@@ -43,7 +52,7 @@ d3.json("data/reservoirs.json", function(error, reservoirs) {
             "segment": reservoirEntry.name,
             "value": reservoirEntry.capacity-levelEntry[reservoirEntry.id] ? reservoirEntry.capacity-levelEntry[reservoirEntry.id] : 0
           });
-          
+                    
         });
         marimekko[levelEntry.date] = dateLevels;
       });
@@ -78,7 +87,7 @@ function chart(error, data) {
       return (d.offset = v) + d.value;
     }, 0));
   }, 0);
-
+  
   // Add x-axis ticks.
   var xtick = svg.selectAll(".x")
       .data(x.ticks(10))
@@ -120,18 +129,28 @@ function chart(error, data) {
       .attr("class", "segment")
       .attr("xlink:title", function(d) { return d.key; })
       .attr("transform", function(d) { return "translate(" + x(d.offset / sum) + ")"; });
-
+  
   // Add a rect for each market.
   var markets = segments.selectAll(".market")
       .data(function(d) { return d.values; })
     .enter().append("a")
       .attr("class", "market")
-      .attr("xlink:title", function(d) { return d.market + " " + d.parent.key + ": " + n(d.value); })
+      .attr("xlink:title", function(d) { return d.market + " at " + d.parent.key + " reservoir: " + n(d.value) + " acre-feet"; })
     .append("rect")
       .attr("y", function(d) { return y(d.offset / d.parent.sum); })
       .attr("height", function(d) { return y(d.value / d.parent.sum); })
       .attr("width", function(d) { return x(d.parent.sum / sum); })
-      .style("fill", function(d) { return z(d.market); });
+      .style("fill", function(d) { return colorKey[d.market]; });
+  
+  var avgLines = segments
+    .append("line")
+    .attr("class",".avgLines")
+    .attr("x1",0)
+    .attr("x2",function(d) { return x(d.sum / sum); })
+    .attr("y1",function(d) { console.log(d); return y(1-averages[d.key][1]); })
+    .attr("y2",function(d) { return y(1-averages[d.key][1]); })
+    .attr("stroke","#3333ff");
+    
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
