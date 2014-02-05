@@ -32,16 +32,16 @@ d3.json("data/reservoirs.json", function(error, reservoirs) {
                     
           // push entry for water level (blue)
           dateLevels.push({
-            "market": reservoirEntry.name,
-            "segment": "Water level",
-            "value": levelEntry[reservoirEntry.id]
+            "market": "Water level",
+            "segment": reservoirEntry.name,
+            "value": levelEntry[reservoirEntry.id] ? levelEntry[reservoirEntry.id] : 0
           });
           
           // push entry for unused capacity (gray)
           dateLevels.push({
-            "market": reservoirEntry.name,
-            "segment": "Unused capacity",
-            "value": reservoirEntry.capacity-levelEntry[reservoirEntry.id]
+            "market": "Unused capacity",
+            "segment": reservoirEntry.name,
+            "value": reservoirEntry.capacity-levelEntry[reservoirEntry.id] ? reservoirEntry.capacity-levelEntry[reservoirEntry.id] : 0
           });
           
         });
@@ -49,13 +49,19 @@ d3.json("data/reservoirs.json", function(error, reservoirs) {
       });
       
       // more stuff
-      console.log(marimekko[40909]);
+      //console.log(marimekko[40909]);
       
+      chart("", marimekko[40909]);
+      //d3.select("body").append("textarea").text(JSON.stringify(marimekko[40909]));
+      //console.log(JSON.stringify(marimekko[40909]));
+
     });    
   });
 });
 
-d3.json("marimekko.json", function(error, data) {
+//d3.json("marimekko.json",chart);
+
+function chart(error, data) {
   var offset = 0;
 
   // Nest values by segment. We assume each segment+market is unique.
@@ -126,7 +132,7 @@ d3.json("marimekko.json", function(error, data) {
       .attr("height", function(d) { return y(d.value / d.parent.sum); })
       .attr("width", function(d) { return x(d.parent.sum / sum); })
       .style("fill", function(d) { return z(d.market); });
-});
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS //////////////////////////////////////////////////////////////////////
