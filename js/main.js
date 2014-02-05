@@ -7,6 +7,8 @@ var reservoirs,
     averages,
     levels;
 
+var i = 0;
+
 var x = d3.scale.linear()
     .range([0, width - 3 * margin]);
 
@@ -62,7 +64,14 @@ d3.json("data/reservoirs.json", function(error, reservoirsJson) {
       
       // more stuff
       
-      chart(null, marimekko[2].values);
+      chart(null, marimekko[0].values);
+      
+      setInterval(function(){
+        update(marimekko[i].values);
+        i++;
+        if(i>=marimekko.length) i=0;
+      },100);
+
       
       //JSON.stringify(marimekko[40909]);
 
@@ -155,15 +164,6 @@ function chart(error, data) {
     
 }
 
-function nextDatum() {
-  update(marimekko[2].values);
-  //console.log(marimekko[2].values);
-  /*svg.data(marimekko[2].values)
-      .transition()
-      .duration(1000)
-      .call(chart);*/
-}
-
 function update(data) {
   var offset = 0;
 
@@ -184,6 +184,9 @@ function update(data) {
   
   var markets = svg.selectAll(".market rect")
       .data(data)
+      .transition()
+      .duration(100)
+      .ease("linear")
       .attr("y", function(d) { return y(d.offset / d.parent.sum); })
       .attr("height", function(d) { return y(d.value / d.parent.sum); })
       .attr("width", function(d) { return x(d.parent.sum / sum); })
