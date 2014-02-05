@@ -7,8 +7,17 @@ var reservoirs,
     averages,
     levels;
 
-var i = 0;
-var milliseconds = 10;
+var startDates = {
+  "fitty": 0,
+  "five": 568,
+  "now": 628 };
+
+var start = startDates.five;
+var i = start;
+var linger = 0;
+var lingerMax = 15;
+var milliseconds = 100;
+var timer;
 
 var x = d3.scale.linear()
     .range([0, width - 3 * margin]);
@@ -66,22 +75,71 @@ d3.json("data/reservoirs.json", function(error, reservoirsJson) {
         marimekko.push(dateLevels);
       });
       
-      // more stuff
-      
-      chart(null, marimekko[0].values);
-      
-      setInterval(function(){
-        update(marimekko[i].values);
-        i++;
-        if(i>=marimekko.length) i=0;
-      },milliseconds);
-
+      // chart for the first time, including misc drawing setup
+      chart(null, marimekko[i].values);
+      // begin update loop
+      resetInterval();
       
       //JSON.stringify(marimekko[40909]);
 
     });    
   });
 });
+
+function resetInterval() {
+  clearInterval(timer);
+  timer = setInterval(function(){
+    if(i>=marimekko.length) {
+      if(linger>=lingerMax) {
+        i=start;
+        linger=0;
+      } else {
+        linger++;
+      }
+    }
+    else {
+      update(marimekko[i].values);
+      i++;      
+    }
+  },milliseconds);
+}
+
+d3.select("#fitty").on("click",function(e) {
+  start=startDates.fitty;
+  i=start;
+  resetInterval();
+});
+
+d3.select("#five").on("click",function(e) {
+  start=startDates.five;
+  i=start;
+  resetInterval();
+});
+
+d3.select("#now").on("click",function(e) {
+  start=startDates.now;
+  i=start;
+  resetInterval();
+});
+
+d3.select("#fast").on("click",function(e) {
+  milliseconds=10;
+  lingerMax = 150;
+  resetInterval();
+});
+
+d3.select("#med").on("click",function(e) {
+  milliseconds=100;
+  lingerMax = 15;
+  resetInterval();
+});
+
+d3.select("#slow").on("click",function(e) {
+  milliseconds=1000;
+  lingerMax = 3;
+  resetInterval();
+});
+
 
 //d3.json("marimekko.json",chart);
 
@@ -206,7 +264,7 @@ function update(data) {
     .transition()
     .duration(milliseconds)
     .ease("linear")
-    .attr("y1",function(d) { console.log(i); return y(1-averages[d.key][marimekko[i].month]); })
+    .attr("y1",function(d) { return y(1-averages[d.key][marimekko[i].month]); })
     .attr("y2",function(d) { return y(1-averages[d.key][marimekko[i].month]); });
 
 }
