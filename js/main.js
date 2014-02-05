@@ -29,7 +29,7 @@ var y = d3.scale.linear()
     .clamp(true);
 
 var colorKey = {
-    "Water level": "#99f",
+    "Water level": "#007cd5",
     "Unused capacity": "#eee"
     };
 
@@ -112,7 +112,7 @@ d3.select("#fitty").on("click",function(e) {
   milliseconds=10;
   lingerMax = 150;
   resetInterval();
-  d3.selectAll(".static-only").remove();
+  d3.selectAll(".static-only").attr("opacity",0);
 });
 
 d3.select("#five").on("click",function(e) {
@@ -121,14 +121,26 @@ d3.select("#five").on("click",function(e) {
   milliseconds=100;
   lingerMax = 15;
   resetInterval();
-  d3.selectAll(".static-only").remove();
+  d3.selectAll(".static-only").attr("opacity",0);
 });
 
 d3.select("#now").on("click",function(e) {
   start=startDates.now;
   i=start;
   resetInterval();
-  d3.selectAll(".static-only").remove();
+  d3.selectAll(".static-only").attr("opacity",1);
+});
+
+d3.select("#play").on("click",function(e) {
+  if(start==startDates.now) {
+    start = startDates.five;
+    d3.selectAll(".static-only").attr("opacity",0);
+  }
+  resetInterval();
+});
+
+d3.select("#paws").on("click",function(e) {
+  clearInterval(timer);
 });
 
 function chart(error, data) {

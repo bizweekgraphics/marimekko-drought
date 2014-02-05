@@ -172,11 +172,15 @@ h4 {
   margin:0;
   text-align:right;
   float:right;
-  width:50%;
+  width:40%;
 }
 
 a:hover {
   text-decoration:underline;
+}
+
+a:visited {
+  color: #007cd5;
 }
 
 /* SVG */
@@ -208,7 +212,7 @@ rect {
   font-size:12px;
   text-transform:uppercase;
   float:left;
-  width:50%;
+  width:60%;
 }
 
 /* from pure css http://purecss.io/buttons/ */
