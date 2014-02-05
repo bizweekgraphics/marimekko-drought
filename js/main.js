@@ -8,6 +8,7 @@ var reservoirs,
     levels;
 
 var i = 0;
+var milliseconds = 10;
 
 var x = d3.scale.linear()
     .range([0, width - 3 * margin]);
@@ -36,7 +37,7 @@ d3.json("data/reservoirs.json", function(error, reservoirsJson) {
   reservoirs = reservoirsJson;
   d3.json("data/averages.json", function(error, averagesJson) {
     averages = averagesJson;
-    d3.json("data/levels.json", function(error, levelsJson) {
+    d3.json("data/levels-bigdata.json", function(error, levelsJson) {
       levels = levelsJson;
       levels.forEach(function(levelEntry) {
         var dateLevels = new Object();
@@ -73,7 +74,7 @@ d3.json("data/reservoirs.json", function(error, reservoirsJson) {
         update(marimekko[i].values);
         i++;
         if(i>=marimekko.length) i=0;
-      },1000);
+      },milliseconds);
 
       
       //JSON.stringify(marimekko[40909]);
@@ -194,7 +195,7 @@ function update(data) {
   var markets = svg.selectAll(".market rect")
       .data(data)
       .transition()
-      .duration(1000)
+      .duration(milliseconds)
       .ease("linear")
       .attr("y", function(d) { return y(d.offset / d.parent.sum); })
       .attr("height", function(d) { return y(d.value / d.parent.sum); })
@@ -203,7 +204,7 @@ function update(data) {
       
   var avgLines = d3.selectAll(".avgLines")
     .transition()
-    .duration(1000)
+    .duration(milliseconds)
     .ease("linear")
     .attr("y1",function(d) { console.log(i); return y(1-averages[d.key][marimekko[i].month]); })
     .attr("y2",function(d) { return y(1-averages[d.key][marimekko[i].month]); });
