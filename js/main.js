@@ -1,6 +1,6 @@
 var width = 630,
     height = 400,
-    margin = 22;
+    margin = 27;
 
 var marimekko = new Array();
 var reservoirs,
@@ -18,6 +18,8 @@ var linger = 0;
 var lingerMax = 15;
 var milliseconds = 100;
 var timer;
+
+var acreFootToGallons = 325851.429;
 
 var x = d3.scale.linear()
     .range([0, width - 3 * margin]);
@@ -219,7 +221,50 @@ function chart(error, data) {
     .attr("y1",function(d) { return y(1-averages[d.key][marimekko[i].month]); })
     .attr("y2",function(d) { return y(1-averages[d.key][marimekko[i].month]); })
     .attr("stroke","#3333ff");
+  
+  var reservoirLabels = segments.append("text")
+    .attr("x",0)
+    .attr("y",height-(2*margin)+12)
+    .attr("text-anchor",function(d) {
+      if(d.key=="Shasta") {
+        return "beginning";
+      } else if(d.key=="Nimbus") {
+        return "end";      
+      }      
+    })
+    .text(function(d) { 
+      //return d.key; 
+      if(d.key=="Shasta") {
+        return "Shasta reservoir";
+      } else if(d.key=="Nimbus") {
+        return "Nimbus reservoir";      
+      }
+    });
     
+  var reservoirLabels2 = segments.append("text")
+    .attr("x",0)
+    .attr("y",height-(2*margin)+23)
+    .attr("text-anchor",function(d) {
+      if(d.key=="Shasta") {
+        return "beginning";
+      } else if(d.key=="Nimbus") {
+        return "end";      
+      }      
+    })
+    .text(function(d) { 
+      //return d.key; 
+      if(d.key=="Shasta") {
+        return bbwNumberFormat(4552100*acreFootToGallons)+" gallons";
+      } else if(d.key=="Nimbus") {
+        return bbwNumberFormat(9000*acreFootToGallons)+" gallons";
+      }
+    });
+    
+  var avgLabel = svg.append("text")
+    .attr("x",13)
+    .attr("y",85)
+    .text("Seasonal avg");
+  
 }
 
 function update(data) {
