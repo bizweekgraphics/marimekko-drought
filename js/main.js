@@ -12,7 +12,7 @@ var startDates = {
   "five": 568,
   "now": 628 };
 
-var start = startDates.five;
+var start = startDates.now;
 var i = start;
 var linger = 0;
 var lingerMax = 15;
@@ -107,12 +107,16 @@ function resetInterval() {
 d3.select("#fitty").on("click",function(e) {
   start=startDates.fitty;
   i=start;
+  milliseconds=10;
+  lingerMax = 150;
   resetInterval();
 });
 
 d3.select("#five").on("click",function(e) {
   start=startDates.five;
   i=start;
+  milliseconds=100;
+  lingerMax = 15;
   resetInterval();
 });
 
@@ -121,27 +125,6 @@ d3.select("#now").on("click",function(e) {
   i=start;
   resetInterval();
 });
-
-d3.select("#fast").on("click",function(e) {
-  milliseconds=10;
-  lingerMax = 150;
-  resetInterval();
-});
-
-d3.select("#med").on("click",function(e) {
-  milliseconds=100;
-  lingerMax = 15;
-  resetInterval();
-});
-
-d3.select("#slow").on("click",function(e) {
-  milliseconds=1000;
-  lingerMax = 3;
-  resetInterval();
-});
-
-
-//d3.json("marimekko.json",chart);
 
 function chart(error, data) {
   
@@ -185,7 +168,7 @@ function chart(error, data) {
 
   // Add y-axis ticks.
   var ytick = svg.selectAll(".y")
-      .data(y.ticks(10))
+      .data(y.ticks(1))
     .enter().append("g")
       .attr("class", "y")
       .attr("transform", function(d) { return "translate(0," + y(1 - d) + ")"; });
