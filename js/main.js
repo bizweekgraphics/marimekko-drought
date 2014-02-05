@@ -2,7 +2,7 @@ var width = 630,
     height = 500,
     margin = 20;
 
-var marimekko = new Object();
+var marimekko = new Array();
 var reservoirs,
     averages,
     levels;
@@ -34,35 +34,37 @@ d3.json("data/reservoirs.json", function(error, reservoirsJson) {
     d3.json("data/levels.json", function(error, levelsJson) {
       levels = levelsJson;
       levels.forEach(function(levelEntry) {
-        var dateLevels = new Array();
+        var dateLevels = new Object();
+        dateLevels.date = levelEntry.date;
+        levelEntry.month = levelEntry.month;
+        dateLevels.values = new Array();
         
         // push two entries for each reservoir
         reservoirs.forEach(function(reservoirEntry) {
-                    
+          
           // push entry for water level (blue)
-          dateLevels.push({
+          dateLevels.values.push({
             "market": "Water level",
             "segment": reservoirEntry.name,
             "value": levelEntry[reservoirEntry.id] ? levelEntry[reservoirEntry.id] : 0
           });
           
           // push entry for unused capacity (gray)
-          dateLevels.push({
+          dateLevels.values.push({
             "market": "Unused capacity",
             "segment": reservoirEntry.name,
             "value": reservoirEntry.capacity-levelEntry[reservoirEntry.id] ? reservoirEntry.capacity-levelEntry[reservoirEntry.id] : 0
           });
                     
         });
-        marimekko[levelEntry.date] = dateLevels;
+        marimekko.push(dateLevels);
       });
       
       // more stuff
-      //console.log(marimekko[40909]);
       
-      chart("", marimekko[40909]);
-      //d3.select("body").append("textarea").text(JSON.stringify(marimekko[40909]));
-      //console.log(JSON.stringify(marimekko[40909]));
+      chart(null, marimekko[2].values);
+      
+      //JSON.stringify(marimekko[40909]);
 
     });    
   });
@@ -147,10 +149,45 @@ function chart(error, data) {
     .attr("class",".avgLines")
     .attr("x1",0)
     .attr("x2",function(d) { return x(d.sum / sum); })
-    .attr("y1",function(d) { console.log(d); return y(1-averages[d.key][1]); })
+    .attr("y1",function(d) { return y(1-averages[d.key][1]); })
     .attr("y2",function(d) { return y(1-averages[d.key][1]); })
     .attr("stroke","#3333ff");
     
+}
+
+function nextDatum() {
+  update(marimekko[2].values);
+  //console.log(marimekko[2].values);
+  /*svg.data(marimekko[2].values)
+      .transition()
+      .duration(1000)
+      .call(chart);*/
+}
+
+function update(data) {
+  var offset = 0;
+
+  // Nest values by segment. We assume each segment+market is unique.
+  var segments = d3.nest()
+      .key(function(d) { return d.segment; })
+      .entries(data);
+
+  // Compute the total sum, the per-segment sum, and the per-market offset.
+  // You can use reduce rather than reduceRight to reverse the ordering.
+  // We also record a reference to the parent segment for each market.
+  var sum = segments.reduce(function(v, p) {
+    return (p.offset = v) + (p.sum = p.values.reduceRight(function(v, d) {
+      d.parent = p;
+      return (d.offset = v) + d.value;
+    }, 0));
+  }, 0);
+  
+  var markets = svg.selectAll(".market rect")
+      .data(data)
+      .attr("y", function(d) { return y(d.offset / d.parent.sum); })
+      .attr("height", function(d) { return y(d.value / d.parent.sum); })
+      .attr("width", function(d) { return x(d.parent.sum / sum); })
+      .style("fill", function(d) { return colorKey[d.market]; });
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
