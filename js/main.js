@@ -1,5 +1,5 @@
 var width = 630,
-    height = 500,
+    height = 400,
     margin = 20;
 
 var marimekko = new Array();
@@ -164,6 +164,7 @@ function chart(error, data) {
     }, 0));
   }, 0);
   
+  /*
   // Add x-axis ticks.
   var xtick = svg.selectAll(".x")
       .data(x.ticks(10))
@@ -180,6 +181,7 @@ function chart(error, data) {
       .attr("text-anchor", "middle")
       .attr("dy", ".71em")
       .text(p);
+  */
 
   // Add y-axis ticks.
   var ytick = svg.selectAll(".y")
