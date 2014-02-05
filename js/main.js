@@ -112,6 +112,7 @@ d3.select("#fitty").on("click",function(e) {
   milliseconds=10;
   lingerMax = 150;
   resetInterval();
+  d3.selectAll(".static-only").remove();
 });
 
 d3.select("#five").on("click",function(e) {
@@ -120,12 +121,14 @@ d3.select("#five").on("click",function(e) {
   milliseconds=100;
   lingerMax = 15;
   resetInterval();
+  d3.selectAll(".static-only").remove();
 });
 
 d3.select("#now").on("click",function(e) {
   start=startDates.now;
   i=start;
   resetInterval();
+  d3.selectAll(".static-only").remove();
 });
 
 function chart(error, data) {
@@ -220,7 +223,7 @@ function chart(error, data) {
     .attr("x2",function(d) { return x(d.sum / sum); })
     .attr("y1",function(d) { return y(1-averages[d.key][marimekko[i].month]); })
     .attr("y2",function(d) { return y(1-averages[d.key][marimekko[i].month]); })
-    .attr("stroke","#3333ff");
+    .attr("stroke","red");
   
   var reservoirLabels = segments.append("text")
     .attr("x",0)
@@ -261,9 +264,18 @@ function chart(error, data) {
     });
     
   var avgLabel = svg.append("text")
+    .classed("static-only",true)
     .attr("x",13)
     .attr("y",85)
     .text("Seasonal avg");
+
+  var percentLabel = svg.append("text")
+    .classed("static-only",true)
+    .attr("x",26)
+    .attr("y",215)
+    .text("36% full");
+
+  drawArrow(svg,[width-(margin*3)+5,height-(margin*2)+10],[width-(margin*3)+2,height-(margin*2)-20],90,false);
   
 }
 
@@ -321,7 +333,11 @@ function inIframe() {
 }
 
 $( document ).ready(function() {  
-  if(inIframe()) $("body").addClass("iframed");
+  if(inIframe()) {
+    $("body").addClass("iframed");
+  } else {
+    $("#logo").addClass("standalone");
+  }
 });
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -388,9 +404,9 @@ function drawArrow(parent, from, to, degrees, clockwise) {
 function bbwNumberFormat(dolla) {
   var base = Math.max(1, Math.min(1e12, dolla));
   var scaler = bbwFormatPrefix(base);
-  return parseFloat(scaler.scale(dolla).toPrecision(3))+scaler.symbol;
+  return parseFloat(scaler.scale(dolla).toPrecision(2))+scaler.symbol;
 }
-var bbw_formatPrefixes = [ "p", "n", "µ", "m", "", "k", "m", "b", "t" ].map(bbw_formatPrefix);
+var bbw_formatPrefixes = [ "p", "n", "µ", "m", "", "k", "m", " billion", " trillion" ].map(bbw_formatPrefix);
 function bbwFormatPrefix(value, precision) {
 	var i = 0;
 	if (value) {
